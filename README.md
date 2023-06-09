@@ -1,0 +1,1 @@
+# CI/CD implementálása Java projekten szabadon választható eszközökkel (JAVAX-CIP)
