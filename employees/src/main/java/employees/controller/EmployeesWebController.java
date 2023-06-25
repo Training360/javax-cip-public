@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +30,10 @@ public class EmployeesWebController {
     }
 
     @PostMapping
-    public ModelAndView createEmployee(@ModelAttribute CreateEmployeeCommand command) {
+    public ModelAndView createEmployee(@ModelAttribute CreateEmployeeCommand command, RedirectAttributes redirectAttributes) {
         employeesService.createEmployee(command);
+        redirectAttributes.addFlashAttribute("message",
+                "Employee has been created: " + command.getName());
         return new ModelAndView("redirect:/");
     }
 
