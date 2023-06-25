@@ -1,0 +1,29 @@
+version: '3'
+services:
+
+  elasticsearch-efd:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
+    environment:
+      - discovery.type=single-node    
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+
+  fluentd-efd:
+    build: ./fluentd
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    depends_on:
+      - elasticsearch-efd
+
+  kibana-efd:
+    image: kibana:8.6.1
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch-efd:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch-efd

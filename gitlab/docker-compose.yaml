@@ -1,0 +1,16 @@
+version: '3.5'
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    hostname: gitlab
+    ports:
+      - "80:80"
+      - "22:22"
+      - "443:443"
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    depends_on:
+      - gitlab
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
