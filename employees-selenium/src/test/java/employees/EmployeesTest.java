@@ -7,13 +7,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,8 +73,11 @@ class EmployeesTest {
         driver.get(url);
         driver.findElement(By.id("name-input")).sendKeys("John Doe");
         driver.findElement(By.id("create-button")).click();
-        String message = driver.findElement(By.id("message-div")).getText();
-        assertEquals("Employee has been created: John Doe", message);
+
+        WebElement messageDiv = new WebDriverWait(driver, Duration.ofSeconds(3))
+          .until(driver -> driver.findElement(By.id("message-div")));
+        
+        assertEquals("Employee has been created: John Doe", messageDiv.getText());
     }
 
 }
