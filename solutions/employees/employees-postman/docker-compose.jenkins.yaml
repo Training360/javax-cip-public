@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  employees-app:
+      image: training360/employees:latest
+      volumes:      
+      - jenkins-data:/var/jenkins_home
+      entrypoint: ["/var/jenkins_home/jobs/employees/workspace/employees-postman/wait/wait-for-it.sh", "-t", "120", "mariadb:3306", "--", "java", "org.springframework.boot.loader.JarLauncher"]
+
+  employees-newman:
+      volumes:      
+      - jenkins-data:/var/jenkins_home
+      entrypoint: ["/var/jenkins_home/jobs/employees/workspace/employees-postman/wait/wait-for-it.sh", "-t", "30", "employees-app:8080", "--", "newman", "run", "employees.postman_collection.json", "-e", "test.postman_environment.json", "-r", "cli,htmlextra", "--reporter-htmlextra-export", "/var/jenkins_home/jobs/employees/workspace/employees-postman/reports"]
+
+volumes:
+  jenkins-data:
+    external: true
+    name: jenkins-data

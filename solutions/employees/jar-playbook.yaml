@@ -1,0 +1,36 @@
+- hosts: all
+  tasks:
+    - name: Add Adoptium apt key
+      become: true
+      ansible.builtin.apt_key:
+        url:  https://packages.adoptium.net/artifactory/api/gpg/key/public
+        state: present
+    - name: Add Adoptium repository
+      become: true
+      ansible.builtin.apt_repository:
+        repo: deb https://packages.adoptium.net/artifactory/deb/ jammy main
+        state: present
+    - name: Install Eclipse Temurin 17
+      become: true
+      apt:
+        name: "temurin-17-jdk"
+        update_cache: yes
+    - name: Copy jar file
+      ansible.builtin.copy:
+        src: ./employees-1.0.0.jar
+        dest: /home/ubuntu
+        owner: ubuntu
+        group: ubuntu
+        mode: u=rwx,g=r,o=r
+      register: jar_copy
+    - name: Copy service file
+      become: true
+      ansible.builtin.copy:
+        src: ./employees.service
+        dest: /etc/systemd/system
+    - name: Restart service on jar change
+      become: true
+      ansible.builtin.systemd:
+        name: employees
+        state: restarted
+      when: jar_copy.changed

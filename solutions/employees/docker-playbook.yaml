@@ -1,0 +1,49 @@
+- hosts: all
+  become: yes
+  vars:
+    pkgstoinstall: [ libffi-dev, libssl-dev, python3, python3-pip ]
+  tasks:
+    - name: Install required packages
+      apt:
+        name: "{{ pkgstoinstall }}"
+        update_cache: yes
+    - name: Remove python-configparser package
+      apt:
+        name: python-configparser
+        state: absent
+    - name: get docker convenience script
+      shell: curl -fsSL https://get.docker.com -o get-docker.sh
+      args:
+        creates: /home/ubuntu/get-docker.sh
+    - name: install docker
+      shell: sh /home/ubuntu/get-docker.sh
+      args:
+        creates: /usr/bin/docker
+    - name: make ubuntu user execute docker commands
+      ansible.builtin.user:
+        name: ubuntu
+        group: docker
+    - name: install docker-compose
+      shell: pip3 -v install docker-compose
+      args:
+        creates: /usr/local/bin/docker-compose
+    - name: Install Docker PIP
+      # Ez kell, hogy Ansible-ből lehessen vezérelni a Dockert
+      ansible.builtin.pip:
+        name: docker
+    - name: Copy Docker compose file
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: /home/ubuntu/employees/
+        owner: ubuntu
+        group: ubuntu
+        mode: u=rwx,g=r,o=r
+      loop:
+        - ./docker-compose.yaml
+        - ./wait
+    - name: Create and start services
+      community.docker.docker_compose:
+        project_src: employees
+      environment:
+        SERVER_PORT: 80
+        IMAGE_NAME: "{{ imageName | default('training360/employees:latest') }}"

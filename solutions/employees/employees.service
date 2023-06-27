@@ -1,0 +1,11 @@
+[Unit]
+Description=Employees
+After=syslog.target
+
+[Service]
+User=root
+Group=root
+ExecStart=java -Dserver.port=80 -jar /home/ubuntu/employees-1.0.0.jar SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

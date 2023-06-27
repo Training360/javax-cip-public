@@ -1,0 +1,20 @@
+// pluginManagement {
+//     repositories {
+//         maven {
+//             url "http://localhost:8091/repository/maven-public/"
+//             allowInsecureProtocol true
+//         }
+//     }
+// }
+
+// pluginManagement {
+//     repositories {
+//         maven {
+//             url "http://localhost:8094/artifactory/libs-release"
+//             allowInsecureProtocol true
+//         }
+//     }
+// }
+
+
+rootProject.name = 'employees-gradle'

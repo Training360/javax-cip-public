@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Employees</title>
+</head>
+<body>
+
+<h1>Employees</h1>
+
+<p>Redeploy #3</p>
+
+<div th:if="${message}" th:text="${message}" id="message-div"></div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="employee : ${employees}">
+            <td th:text="${employee.id}"></td>
+            <td th:text="${employee.name}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<form th:action="@{/}" th:object="${command}" method="post">
+        <label for="name-input">Name</label>
+        <input th:field="*{name}" id="name-input" />
+    <button type="submit" id="create-button">Create employee</button>
+</form>
+
+</body>
+</html>

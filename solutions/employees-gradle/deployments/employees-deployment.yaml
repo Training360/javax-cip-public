@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: employees-config
+data:
+  SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb/employees
+  SPRING_DATASOURCE_USERNAME: employees
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employees-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: employees-app
+  template:
+    metadata:
+      labels:
+        app: employees-app
+    spec:
+      containers:
+      - image: training360/employees:latest
+        name: employees-app
+        envFrom:
+          - configMapRef:
+              name: employees-config
+          - secretRef:
+              name: employees-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employees-app
+  labels:
+    app: employees-app  
+spec:
+  ports:
+  - port: 8080
+  selector:
+    app: employees-app

@@ -1,0 +1,107 @@
+image: eclipse-temurin:17
+
+stages:
+  - commit
+  - acceptance
+  - docker
+  # - e2e
+  # - code-quality
+  - quality
+  - deploy
+
+variables:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.caching=true -Dgradle.user.home=cache/
+
+.get_version_template: &get_version_template |
+  ./gradlew -PbuildNumber=$CI_PIPELINE_ID properties | grep '^version: ' | sed 's/version: /VERSION=/g' >> commit.env
+
+commit-job:
+  stage: commit
+  cache:
+    key:
+      files:
+        - gradle/wrapper/gradle-wrapper.properties
+    paths:
+      - cache/caches/
+      - cache/notifications/
+      - cache/wrapper/
+  script:
+    - *get_version_template
+    - cat commit.env
+    - ./gradlew -PbuildNumber=$CI_PIPELINE_ID test assemble 
+  artifacts:
+    reports:
+      dotenv: commit.env
+    paths:
+      - build/libs/*.jar
+
+.acceptance-job:
+  stage: acceptance
+  cache:
+    key:
+      files:
+        - gradle/wrapper/gradle-wrapper.properties
+    paths:
+      - cache/caches/
+      - cache/notifications/
+      - cache/wrapper/
+  script:
+    - echo "Acceptance stage"
+    - ./gradlew -PbuildNumber=$CI_PIPELINE_ID integrationTest
+
+docker-job:
+  stage: docker
+  image: docker:latest
+  script:
+    - echo "$VERSION"
+    - IMAGE_NAME="training360/employees:$VERSION"
+    - docker build -f Dockerfile.layered -t "$IMAGE_NAME" .
+    - docker tag ${IMAGE_NAME} training360/employees:latest
+
+# GitLab server - GitLab Runner - Executor - E2E Compose
+
+.e2e-job:
+  stage: quality
+  needs: ['docker-job']
+  image: docker:latest
+  script:
+    - cd employees-postman
+    - rm -rf reports
+    - mkdir reports
+    - pwd
+    - export E2E_HOME=$(pwd)    
+    - docker compose -f docker-compose.yaml -f docker-compose.gitlab.yaml up --abort-on-container-exit
+  artifacts:
+    paths:
+      - employees-postman/reports/*
+
+.code-quality-job:
+  stage: quality
+  needs: ['docker-job']
+  cache:
+    key:
+      files:
+        - gradle/wrapper/gradle-wrapper.properties
+    paths:
+      - cache/caches/
+      - cache/notifications/
+      - cache/wrapper/      
+  script:
+  - ./gradlew sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=http://host.docker.internal:9000 -i
+
+deploy-job:
+  stage: deploy
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  before_script:
+    - export KUBECONFIG=$KUBECONFIG_FILE
+  script:
+    - cd deployments    
+    - kubectl config get-contexts
+    - kubectl apply -f mariadb-secrets.yaml
+    - kubectl apply -f mariadb-deployment.yaml
+    - kubectl apply -f employees-secrets.yaml    
+    - IMAGE_NAME="training360\/employees:$VERSION" # escaped
+    - sed  "s/training360\/employees:latest/$IMAGE_NAME/g" employees-deployment.yaml | kubectl apply -f -  
+  when: manual

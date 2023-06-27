@@ -1,0 +1,10 @@
+all:
+  children:
+    servers:
+      hosts:
+        training:
+          ansible_host: 3.73.75.149
+          ansible_user: ubuntu
+          ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
+      vars:
+        gather_facts: false

@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  mariadb:
+    image: mariadb
+    expose:
+      - 3306
+    environment:
+      MARIADB_DATABASE: employees
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+      MARIADB_USER: employees
+      MARIADB_PASSWORD: employees
+
+  employees-app:
+    image: employees:1.0.0
+    depends_on:
+      - mariadb
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:mariadb://mariadb:3306/employees'
+      SPRING_DATASOURCE_USERNAME: employees
+      SPRING_DATASOURCE_PASSWORD: employees
+    volumes:
+      - ./wait:/opt/wait
+    entrypoint: ["/opt/wait/wait-for-it.sh", "-t", "120", "mariadb:3306", "--", "/cnb/process/web"]
+    expose:
+      - 8080
+
+  employees-newman:
+    build: .
+    image: employees-newman
+    volumes:
+    - ./reports:/tests/reports
+    - ./wait:/opt/wait
+    depends_on:
+      - employees-app
+    entrypoint: ["/opt/wait/wait-for-it.sh", "-t", "30", "employees-app:8080", "--", "newman", "run", "employees.postman_collection.json", "-e", "test.postman_environment.json", "-r", "cli,htmlextra", "--reporter-htmlextra-export", "reports"]
