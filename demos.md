@@ -6,6 +6,9 @@
 * DBeaver (opcionális)
 * Postman (opcionális)
 * Windows Subsystem for Linux 2 + Ubuntu
+
+## Szolgáltatások
+
 * GitHub regisztráció (ingyenes)
 * Docker Hub regisztráció (ingyenes)
 * AWS regisztráció (ingyenes, bankkártya szükséges)
@@ -2026,7 +2029,7 @@ if (isDeployAllowed == 'No') {
 Menu / Admin / CI/CD / Runners / Register an instance runner
 
 ```shell
-docker exec -it gitlab-gitlab-runner-1 gitlab-runner register --non-interactive --url http://gitlab-gitlab-1 --registration-token TPFwv281zFYKx_pY_2zq --executor docker --docker-image docker:latest --docker-network-mode gitlab_default --clone-url http://gitlab-gitlab-1 --docker-volumes /var/run/docker.sock:/var/run/docker.sock
+docker exec -it gitlab-gitlab-runner-1 gitlab-runner register --non-interactive --url http://gitlab-gitlab-1 --registration-token TPFwv281zFYKx_pY_2zq --executor docker --docker-image docker:latest --docker-network-mode gitlab_default --clone-url http://gitlab-gitlab-1 --docker-volumes /var/run/docker.sock:/var/run/docker.sock --docker-volumes gitlab-runner-builds:/builds
 ```
 
 Ha valami szétesne:
@@ -2108,17 +2111,234 @@ Következő forráskód módosítás:
 * Restoring cache
 * Saving cache for successful job
 
----
+# GitLab artifact - gyakorlat
 
-## Verziószám Gradle és GitLab használatával
+```yaml
+commit-job:
+  stage: commit
+  artifacts:
+    paths:
+      - build/libs/*.jar
+```
+
+```groovy
+jar {
+    enabled = false
+}
+```
+
+* Download artifacts
+
+# Verziószám Gradle és GitLab használatával - gyakorlat
 
 ```groovy
 def buildNumber = findProperty('buildNumber') ?: 'unknown'
-version = '0.0.1-' + buildNumber
+version = '1.0.0-' + buildNumber
 ```
 
 ```yaml
-- ./gradlew --build-cache --gradle-user-home cache/ -PbuildNumber=${BUILD_NUMBER} test assemble
+- ./gradlew --build-cache --gradle-user-home cache/ -PbuildNumber=$CI_PIPELINE_ID test assemble
+```
+
+# Gradle integrációs tesztek futtatása GitLabon - gyakorlat
+
+```yaml
+variables:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false -Dorg.gradle.caching=true -Dgradle.user.home=cache/
+```
+
+```yaml
+acceptance-job:
+  stage: acceptance
+  cache:
+    key:
+      files:
+        - gradle/wrapper/gradle-wrapper.properties
+    paths:
+      - cache/caches/
+      - cache/notifications/
+      - cache/wrapper/      
+  script:
+    - echo "Acceptance stage"
+    - ./gradlew -PbuildNumber=$CI_PIPELINE_ID integrationTest
+```
+
+# Docker image létrehozása GitLabon - gyakorlat
+
+```yaml
+.get_version_template: &get_version_template |
+  ./gradlew -PbuildNumber=$CI_PIPELINE_ID properties | grep '^version: ' | sed 's/version: /VERSION=/g' >> commit.env
+```
+
+```yaml
+commit-job:
+  stage: commit
+  script:
+    - *get_version_template
+    - cat commit.env
+  artifacts:
+    reports:
+      dotenv: commit.env
+```
+
+```yaml
+stages:
+  - docker
+
+docker-job:
+  stage: docker
+  image: docker:latest
+  script:
+    - echo "$VERSION"
+    - IMAGE_NAME="training360/employees:$VERSION"
+    - docker build -f Dockerfile.layered -t "$IMAGE_NAME" .
+    - docker tag ${IMAGE_NAME} training360/employees:latest
+```
+
+# E2E tesztek futtatása GitLabon - gyakorlat
+
+```shell
+git update-index --chmod=+x employees-postman\wait\wait-for-it.sh
+```
+
+```yaml
+stages:
+  e2e
+
+e2e-job:
+  stage: e2e
+  image: docker:latest
+  script:
+    - cd employees-postman
+    - rm -rf reports
+    - mkdir reports
+    - pwd
+    - export E2E_HOME=$(pwd)    
+    - docker compose -f docker-compose.yaml -f docker-compose.gitlab.yaml up --abort-on-container-exit
+  artifacts:
+    paths:
+      - employees-postman/reports/*
+```
+
+`docker-compose.gitlab.yaml`
+
+```yaml
+version: '3'
+
+services:
+  employees-app:
+      image: training360/employees:latest
+      volumes:
+        - gitlab-runner-builds:/builds
+      entrypoint: ["${E2E_HOME}/wait/wait-for-it.sh", "-t", "120", "mariadb:3306", "--", "java", "org.springframework.boot.loader.JarLauncher"]
+
+  employees-newman:
+      volumes:
+        - gitlab-runner-builds:/builds
+      entrypoint: ["${E2E_HOME}/wait/wait-for-it.sh", "-t", "30", "employees-app:8080", "--", "newman", "run", "employees.postman_collection.json", "-e", "test.postman_environment.json", "-r", "cli,htmlextra", "--reporter-htmlextra-export", "${E2E_HOME}/reports"]
+
+volumes:
+  gitlab-runner-builds:
+    external: true
+    name: gitlab-runner-builds
+```
+
+```shell
+docker exec -it gitlab-gitlab-runner-1 cat /etc/gitlab-runner/config.toml
+```
+
+# SonarQube ellenőrzés futtatása GitLabon - gyakorlat
+
+* Settings / CI/CD / Variables
+
+```yaml
+stages:
+  - code-quality
+
+code-quality-job:
+  stage: code-quality
+  cache:
+    key:
+      files:
+        - gradle/wrapper/gradle-wrapper.properties
+    paths:
+      - cache/caches/
+      - cache/notifications/
+      - cache/wrapper/      
+  script:
+  - ./gradlew sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=http://host.docker.internal:9000 -i
+```
+
+# Párhuzamos futtatás GitLabon - gyakorlat
+
+```yaml
+stages:
+  # - e2e
+  # - code-quality
+  - quality
+
+.e2e-job:
+  stage: quality
+  needs: ['docker-job']
+
+.code-quality-job:
+  stage: quality
+  needs: ['docker-job']
+```
+
+# Telepítés Kubernetes környezetre GitLabon - gyakorlat
+
+* Settings / CI/CD / Variables
+
+`%USERPROFILE%/.kube/config`
+
+```shell
+xcopy /e /i employees\deployments employees-gradle\deployments
+```
+
+```yaml
+- image: training360/employees:latest
+```
+
+* `src\main\resources\templates\employees.html`
+
+```yaml
+stages:
+  deploy
+
+deploy-job:
+  stage: deploy
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  before_script:
+    - export KUBECONFIG=$KUBECONFIG_FILE
+  script:
+    - cd deployments    
+    - kubectl config get-contexts
+    - kubectl apply -f mariadb-secrets.yaml
+    - kubectl apply -f mariadb-deployment.yaml
+    - kubectl apply -f employees-secrets.yaml    
+    - IMAGE_NAME="training360\/employees:$VERSION" # escaped
+    - sed  "s/training360\/employees:latest/$IMAGE_NAME/g" employees-deployment.yaml | kubectl apply -f -
+```
+
+```gradle
+springBoot {
+	buildInfo()
+}
+```
+
+`src\main\resources\templates\employees.html`
+
+```shell
+kubectl port-forward svc/employees-app 8080:8080
+```
+
+# Manuális lépés GitLabon - gyakorlat
+
+```yaml
+when: manual
 ```
 
 # Monitorozás Prometheus és Graphana használatával - gyakorlat
