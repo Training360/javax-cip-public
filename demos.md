@@ -2341,6 +2341,63 @@ kubectl port-forward svc/employees-app 8080:8080
 when: manual
 ```
 
+# Telepítés Helm használatával
+
+```shell
+kubectl delete -f mariadb-secrets.yaml
+kubectl delete -f mariadb-deployment.yaml
+kubectl delete -f employees-secrets.yaml    
+kubectl delete -f employees-deployment.yaml 
+```
+
+* `employees-chart` könyvtár létrehozása
+* `Chart.yaml`
+
+```yaml
+apiVersion: v2
+name: employees-chart
+version: 1.0.0
+```
+
+```shell
+xcopy /e /i deployments employees-chart\templates
+```
+
+* `employees-deployment.yaml` fájlban
+
+```yaml
+- image: training360/employees:{{ .Values.image.tag }}
+```
+
+* `values.yaml` fájlban:
+
+```yaml
+image:
+  tag: "latest"
+```
+
+* `.gitlab-ci.yml` fájlban
+
+```yaml
+deploy-job:
+  stage: deploy
+  image: 
+    name: alpine/helm:3.12.1
+    entrypoint: [""]   
+  before_script:
+    - export KUBECONFIG=$KUBECONFIG_FILE
+  script:
+    - helm upgrade --install employees ./employees-chart --set image.tag=$VERSION
+```
+
+* `src\main\resources\templates\employees.html`
+
+```shell
+kubectl port-forward svc/employees-app 8080:8080
+```
+
+* `http://localhost:8080/actuator/info`
+
 # Monitorozás Prometheus és Graphana használatával - gyakorlat
 
 `pom.xml`
