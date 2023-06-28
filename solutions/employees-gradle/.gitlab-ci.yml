@@ -89,19 +89,29 @@ docker-job:
   script:
   - ./gradlew sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=http://host.docker.internal:9000 -i
 
+# deploy-job:
+#   stage: deploy
+#   image:
+#     name: bitnami/kubectl:latest
+#     entrypoint: ['']
+#   before_script:
+#     - export KUBECONFIG=$KUBECONFIG_FILE
+#   script:
+#     - cd deployments    
+#     - kubectl config get-contexts
+#     - kubectl apply -f mariadb-secrets.yaml
+#     - kubectl apply -f mariadb-deployment.yaml
+#     - kubectl apply -f employees-secrets.yaml    
+#     - IMAGE_NAME="training360\/employees:$VERSION" # escaped
+#     - sed  "s/training360\/employees:latest/$IMAGE_NAME/g" employees-deployment.yaml | kubectl apply -f -  
+#   when: manual
+
 deploy-job:
   stage: deploy
-  image:
-    name: bitnami/kubectl:latest
-    entrypoint: ['']
+  image: 
+    name: alpine/helm:3.12.1
+    entrypoint: [""]   
   before_script:
     - export KUBECONFIG=$KUBECONFIG_FILE
   script:
-    - cd deployments    
-    - kubectl config get-contexts
-    - kubectl apply -f mariadb-secrets.yaml
-    - kubectl apply -f mariadb-deployment.yaml
-    - kubectl apply -f employees-secrets.yaml    
-    - IMAGE_NAME="training360\/employees:$VERSION" # escaped
-    - sed  "s/training360\/employees:latest/$IMAGE_NAME/g" employees-deployment.yaml | kubectl apply -f -  
-  when: manual
+    - helm upgrade --install employees ./employees-chart --set image.tag=$VERSION
