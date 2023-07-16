@@ -1,0 +1,70 @@
+version: "3"
+services:
+  selenium-hub:
+    image: selenium/hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  chrome:
+    image: selenium/node-chrome
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - selenium-hub
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+    expose:
+      - "5900"
+    privileged: true
+
+  chrome-video:
+    image: selenium/video:ffmpeg-4.3.1-20210527
+    volumes:
+      - ./videos:/videos
+    depends_on:
+      - chrome
+    environment:
+      DISPLAY_CONTAINER_NAME: chrome
+      FILE_NAME: chrome-video.mp4
+
+  mariadb:
+    image: mariadb
+    expose:
+      - 3306
+    environment:
+      MARIADB_DATABASE: employees
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+      MARIADB_USER: employees
+      MARIADB_PASSWORD: employees
+
+  employees-app:
+    image: employees:1.0.0
+    expose:
+      - 8080
+    volumes:
+      - ./wait:/opt/wait
+    depends_on:
+      - mariadb
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:mariadb://mariadb:3306/employees'
+      SPRING_DATASOURCE_USERNAME: employees
+      SPRING_DATASOURCE_PASSWORD: employees
+    entrypoint: ["/opt/wait/wait-for-it.sh", "-t", "120", "mariadb:3306", "--", "/cnb/process/web"]
+
+  employees-selenium:
+    build: .
+    image: employees-selenium
+    volumes:
+      - ./surefire-reports:/tests/target/surefire-reports
+      - ./wait:/opt/wait
+    depends_on:
+      - employees-app
+    environment:
+      SELENIUM_DRIVER: RemoteWebDriver
+      SELENIUM_HUB_URL: http://selenium-hub:4444
+      SELENIUM_SUT_URL: http://employees-app:8080
+    entrypoint: ["/opt/wait/wait-for-it.sh", "-t", "120", "employees-app:8080", "--", "./mvnw", "test"]
