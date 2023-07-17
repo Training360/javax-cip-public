@@ -1,6 +1,7 @@
 ## Telepített szoftverek
 
 * Git
+* JDK 17
 * Visual Studio Code
 * Docker Desktop
 * DBeaver (opcionális)
@@ -425,7 +426,7 @@ http://localhost:8094/
 
 * User management/Settings/Allow Anonymous Access
 
-## Artifactory repo manager proxyként - gyakorlat
+## Artifactory repo manager Maven proxyként - gyakorlat
 
 `~/.m2/settings.xml` fájlban
 
@@ -1169,7 +1170,7 @@ mvnw verify
 
 Lásd `target/dependency-check-report.html`
 
- # OWASP dependency check Gradle-lel - gyakorlat
+# OWASP dependency check Gradle-lel - gyakorlat
 
 ```groovy
 id "org.owasp.dependencycheck" version "8.2.1"
