@@ -870,7 +870,7 @@ services:
 ```shell
 docker compose up -d
 docker compose logs -f
-docker run -it  sql employees
+docker exec -it employees-mariadb-1 mariadb employees
 ```
 
 ```sql
