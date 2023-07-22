@@ -1,4 +1,6 @@
-## Telepített szoftverek
+# CI/CD implementálása Java projekten szabadon választható eszközökkel - gyakorlati feladatok
+
+## Telepítendő szoftverek
 
 * Git
 * JDK 17
@@ -1075,7 +1077,7 @@ docker run --name sonarqube -d -p 9000:9000 sonarqube:lts
 * My Account / Security / Generate Tokens
 
 
-# Projekt elemzése SonarScanner Maven pluginnal - gyakorlat
+## Projekt elemzése SonarScanner Maven pluginnal - gyakorlat
 
 ```shell
 mvnw sonar:sonar "-Dsonar.login=token"
@@ -1084,7 +1086,7 @@ mvnw sonar:sonar "-Dsonar.login=token"
 * Elemzés eredménye
 * Tesztlefedettség eredménye
 
-# Integrációs tesztek SonarScanner Maven pluginnal - gyakorlat
+## Integrációs tesztek SonarScanner Maven pluginnal - gyakorlat
 
 ```xml
 <sonar.junit.reportPaths>
@@ -1092,7 +1094,7 @@ mvnw sonar:sonar "-Dsonar.login=token"
 </sonar.junit.reportPaths>
 ```
 
-# Projekt elemzése SonarScanner Gradle pluginnal - gyakorlat
+## Projekt elemzése SonarScanner Gradle pluginnal - gyakorlat
 
 ```groovy
 id "org.sonarqube" version "4.2.1.3168"
@@ -1103,7 +1105,7 @@ gradlew sonar "-Dsonar.login=token" -i
 ```
 
 
-# Integrációs tesztek SonarScanner Gradle pluginnal - gyakorlat
+## Integrációs tesztek SonarScanner Gradle pluginnal - gyakorlat
 
 ```groovy
 jacocoTestReport {
@@ -1170,7 +1172,7 @@ mvnw verify
 
 Lásd `target/dependency-check-report.html`
 
-# OWASP dependency check Gradle-lel - gyakorlat
+## OWASP dependency check Gradle-lel - gyakorlat
 
 ```groovy
 id "org.owasp.dependencycheck" version "8.2.1"
@@ -1182,7 +1184,7 @@ id "org.owasp.dependencycheck" version "8.2.1"
 
 * Lásd `build/dependency-check-report.html`
 
-# AWS CLI beállítása - gyakorlat
+## AWS CLI beállítása - gyakorlat
 
 * IAM
 * AmazonEC2FullAccess policy
@@ -1207,7 +1209,7 @@ aws configure
 aws ec2 describe-images --image-ids ami-0caef02b518350c8b
 ```
 
-# EC2 példány létrehozása AWS környezetben - gyakorlat
+## EC2 példány létrehozása AWS környezetben - gyakorlat
 
 ```shell
 aws ec2 create-key-pair --key-name training --query 'KeyMaterial' --output text > training.pem
@@ -1224,7 +1226,7 @@ sudo chmod 600 training.pem
 ssh -i training.pem ubuntu@18.156.163.44
 ```
 
-# Ansible telepítése és konfigurálása - gyakorlat
+## Ansible telepítése és konfigurálása - gyakorlat
 
 ```shell
 sudo apt-get update
@@ -1250,7 +1252,7 @@ all:
 ansible -i inventory.yaml all -m ping
 ```
 
-# Alkalmazás jar telepítése Ansible használatával - gyakorlat
+## Alkalmazás jar telepítése Ansible használatával - gyakorlat
 
 ```shell
 cp /mnt/c/training/employees/target/employees-1.0.0.jar .
@@ -1335,7 +1337,7 @@ ansible-playbook jar-playbook.yaml -i inventory.yaml
 ```
 
 
-# Docker image push-olása Docker hub-ra - gyakorlat
+## Docker image push-olása Docker hub-ra - gyakorlat
 
 ```
 docker login hub.docker.com
@@ -1343,7 +1345,7 @@ docker tag employees:1.0.0 training360/employees:1.0.0
 docker push training360/employees:1.0.0
 ```
 
-# Docker telepítés és konténer futtatás AWS környezetben Ansible használatával
+## Docker telepítés és konténer futtatás AWS környezetben Ansible használatával
 
 `stop-service-playbook.yaml`
 
@@ -1437,7 +1439,7 @@ cp /mnt/c/training/employees/docker-playbook.yaml .
 ansible-playbook docker-playbook.yaml -i inventory.yaml
 ```
 
-# Futtatás Kubernetes környezetben
+## Futtatás Kubernetes környezetben
 
 `mariadb-secrets.yaml`
 
@@ -1592,7 +1594,7 @@ kubectl logs -f employees-app-8695c558-g4p6p
 kubectl port-forward svc/employees-app 8080:8080
 ```
 
-# Lokális Git repo létrehozása - gyakorlat
+## Lokális Git repo létrehozása - gyakorlat
 
 ```shell
 git init
@@ -1600,7 +1602,7 @@ git add .
 git commit -m "Init"
 ```
 
-# GitLab indítása - gyakorlat
+## GitLab indítása - gyakorlat
 
 ```shell
 xcopy /e /i javax-cip-public\gitlab gitlab
@@ -1617,7 +1619,7 @@ docker exec -it gitlab-gitlab-1 grep "Password:" /etc/gitlab/initial_root_passwo
 * Bejelentkezés: `root` felhasználóval
 * Változtassuk meg a jelszót!
 
-# Verziókezelés GitLabbal - gyakorlat
+## Verziókezelés GitLabbal - gyakorlat
 
 * A `localhost` átírása
 
@@ -1626,7 +1628,7 @@ git remote add origin http://localhost/root/employees-gradle.git
 git push origin master
 ```
 
-# Jenkins indítása - gyakorlat
+## Jenkins indítása - gyakorlat
 
 ```shell
 xcopy /e /i javax-cip-public\jenkins jenkins
@@ -1650,7 +1652,7 @@ docker compose up -d
     * Default Language: `en`
     * Ignore browser preference and force this language to all users: checked
 
-# Első pipeline a Jenkinsen - gyakorlat
+## Első pipeline a Jenkinsen - gyakorlat
 
 Job létrehozása:
 
@@ -1684,7 +1686,7 @@ stage('Acceptance') {
 }
 ```
 
-# Maven build Jenkinsen - gyakorlat
+## Maven build Jenkinsen - gyakorlat
 
 
 ```shell
@@ -1720,7 +1722,7 @@ at unix:///var/run/docker.sock:
 docker exec --user root -it jenkins-jenkins-1 chmod 777 /var/run/docker.sock
 ```
 
-# Maven verziószám Jenkinsen - gyakorlat
+## Maven verziószám Jenkinsen - gyakorlat
 
 `pom.xml`
 
@@ -1752,7 +1754,7 @@ script {
 echo "Version number: ${VERSION_NUMBER}"
 ```
 
-# Integrációs tesztek futtatása Jenkinsen - gyakorlat
+## Integrációs tesztek futtatása Jenkinsen - gyakorlat
 
 ```groovy
 stage('Acceptance') {
@@ -1763,7 +1765,7 @@ stage('Acceptance') {
 }
 ```
 
-# Docker Hub credentials Jenkinsen - gyakorlat
+## Docker Hub credentials Jenkinsen - gyakorlat
 
 * _Manage Jenkins / Credentials / (global)_
 * _Add credential_
@@ -1776,7 +1778,7 @@ environment {
 }
 ```
 
-# Docker image létrehozása és push Docker Hubra Jenkinsen - gyakorlat
+## Docker image létrehozása és push Docker Hubra Jenkinsen - gyakorlat
 
 `environment` bemozgatása
 
@@ -1829,7 +1831,7 @@ stage('Docker') {
 
 * Docker Hub
 
-# E2E tesztek futtatása Jenkinsen - gyakorlat
+## E2E tesztek futtatása Jenkinsen - gyakorlat
 
 ```shell
 xcopy /e /i employees-postman employees\employees-postman
@@ -1851,12 +1853,12 @@ services:
       image: training360/employees:latest
       volumes:      
       - jenkins-data:/var/jenkins_home
-      entrypoint: ["/var/jenkins_home/jobs/employees/workspace/employees-postman/wait/wait-for-it.sh", "-t", "120", "mariadb:3306", "--", "java", "org.springframework.boot.loader.JarLauncher"]
+      entrypoint: ["/var/jenkins_home/workspace/employees/employees-postman/wait/wait-for-it.sh", "-t", "120", "mariadb:3306", "--", "java", "org.springframework.boot.loader.JarLauncher"]
 
   employees-newman:
       volumes:      
       - jenkins-data:/var/jenkins_home
-      entrypoint: ["/var/jenkins_home/jobs/employees/workspace/employees-postman/wait/wait-for-it.sh", "-t", "30", "employees-app:8080", "--", "newman", "run", "employees.postman_collection.json", "-e", "test.postman_environment.json", "-r", "cli,htmlextra", "--reporter-htmlextra-export", "/var/jenkins_home/jobs/employees/workspace/employees-postman/reports"]
+      entrypoint: ["/var/jenkins_home/workspace/employees/employees-postman/wait/wait-for-it.sh", "-t", "30", "employees-app:8080", "--", "newman", "run", "employees.postman_collection.json", "-e", "test.postman_environment.json", "-r", "cli,htmlextra", "--reporter-htmlextra-export", "/var/jenkins_home/workspace/employees/employees-postman/reports"]
 
 volumes:
   jenkins-data:
@@ -1882,7 +1884,7 @@ sh 'mkdir reports'
 archiveArtifacts artifacts: 'reports/*.html', fingerprint: true
 ```
 
-# SonarQube ellenőrzés futtatása Jenkinsen - gyakorlat
+## SonarQube ellenőrzés futtatása Jenkinsen - gyakorlat
 
 * Add credential
 
@@ -1900,28 +1902,13 @@ stage('Code quality') {
 }
 ```
 
-# Párhuzamos futtatás Jenkinsen - gyakorlat
+## Párhuzamos futtatás Jenkinsen - gyakorlat
 
 * `stage ('Quality')` / `parallel`
 
 * Pipeline Graph View
 
-# Manuális lépés Jenkinsen - gyakorlat
-
-```
-stage('Deploy') {
-                steps {
-                    script {
-                        def IS_DEPLOY_ALLOWED = input(message: 'Deploy?', parameters: [
-                            [$class: 'ChoiceParameterDefinition', choices: "Yes\nNo", name: 'deploy'],
-                        ])
-                        print("${IS_DEPLOY_ALLOWED}")
-                    }
-                }
-            }
-```
-
-# ssh-agent használata
+## ssh-agent használata
 
 ```shell
 ssh -i training.pem ubuntu@3.73.75.149
@@ -1930,12 +1917,12 @@ ssh-add training.pem
 ssh ubuntu@3.73.75.149
 ```
 
-# AWS credentials Jenkinsen - gyakorlat
+## AWS credentials Jenkinsen - gyakorlat
 
 * Create `aws-credential`
   * `cat training.pem`
 
-# Ansible telepítés AWS környezetre Jenkinsen - gyakorlat
+## Ansible telepítés AWS környezetre Jenkinsen - gyakorlat
 
 `inventory.yaml`
 
@@ -2003,7 +1990,7 @@ RUN adduser --uid 1000 jenkins
 
 * `http://3.73.75.149/actuator/info`
 
-# Git hash megjelenítése - gyakorlat
+## Git hash megjelenítése - gyakorlat
 
 ```xml
 <plugin>
@@ -2025,7 +2012,7 @@ if (isDeployAllowed == 'No') {
 }
 ```
 
-# GitLab runner - gyakorlat
+## GitLab runner - gyakorlat
 
 Menu / Admin / CI/CD / Runners / Register an instance runner
 
@@ -2039,7 +2026,7 @@ Ha valami szétesne:
 docker exec -it gl-gitlab-runner-1 gitlab-runner verify
 ```
 
-# Első pipeline GitLabon - gyakorlat
+## Első pipeline GitLabon - gyakorlat
 
 * Pipeline egy `.gitlab-ci.yml` fájl
 * Job: utasítások leírására
@@ -2077,7 +2064,7 @@ acceptance-job:
   * CI/CD / Editor menüpont
   * _This GitLab CI configuration is valid._
 
-# Gradle build GitLabon - gyakorlat
+## Gradle build GitLabon - gyakorlat
 
 ```shell
 git update-index --chmod=+x .\gradlew
@@ -2090,7 +2077,7 @@ script:
   - ./gradlew test assemble
 ```
 
-# Gradle cache GitLabon - gyakorlat
+## Gradle cache GitLabon - gyakorlat
 
 ```yaml
 commit-job:
@@ -2112,7 +2099,7 @@ Következő forráskód módosítás:
 * Restoring cache
 * Saving cache for successful job
 
-# GitLab artifact - gyakorlat
+## GitLab artifact - gyakorlat
 
 ```yaml
 commit-job:
@@ -2130,7 +2117,7 @@ jar {
 
 * Download artifacts
 
-# Verziószám Gradle és GitLab használatával - gyakorlat
+## Verziószám Gradle és GitLab használatával - gyakorlat
 
 ```groovy
 def buildNumber = findProperty('buildNumber') ?: 'unknown'
@@ -2141,7 +2128,7 @@ version = '1.0.0-' + buildNumber
 - ./gradlew --build-cache --gradle-user-home cache/ -PbuildNumber=$CI_PIPELINE_ID test assemble
 ```
 
-# Gradle integrációs tesztek futtatása GitLabon - gyakorlat
+## Gradle integrációs tesztek futtatása GitLabon - gyakorlat
 
 ```yaml
 variables:
@@ -2164,7 +2151,7 @@ acceptance-job:
     - ./gradlew -PbuildNumber=$CI_PIPELINE_ID integrationTest
 ```
 
-# Docker image létrehozása GitLabon - gyakorlat
+## Docker image létrehozása GitLabon - gyakorlat
 
 ```yaml
 .get_version_template: &get_version_template |
@@ -2196,7 +2183,7 @@ docker-job:
     - docker tag ${IMAGE_NAME} training360/employees:latest
 ```
 
-# E2E tesztek futtatása GitLabon - gyakorlat
+## E2E tesztek futtatása GitLabon - gyakorlat
 
 ```shell
 git update-index --chmod=+x employees-postman\wait\wait-for-it.sh
@@ -2248,7 +2235,7 @@ volumes:
 docker exec -it gitlab-gitlab-runner-1 cat /etc/gitlab-runner/config.toml
 ```
 
-# SonarQube ellenőrzés futtatása GitLabon - gyakorlat
+## SonarQube ellenőrzés futtatása GitLabon - gyakorlat
 
 * Settings / CI/CD / Variables
 
@@ -2270,7 +2257,7 @@ code-quality-job:
   - ./gradlew sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.host.url=http://host.docker.internal:9000 -i
 ```
 
-# Párhuzamos futtatás GitLabon - gyakorlat
+## Párhuzamos futtatás GitLabon - gyakorlat
 
 ```yaml
 stages:
@@ -2287,7 +2274,7 @@ stages:
   needs: ['docker-job']
 ```
 
-# Telepítés Kubernetes környezetre GitLabon - gyakorlat
+## Telepítés Kubernetes környezetre GitLabon - gyakorlat
 
 * Settings / CI/CD / Variables
 
@@ -2336,13 +2323,13 @@ springBoot {
 kubectl port-forward svc/employees-app 8080:8080
 ```
 
-# Manuális lépés GitLabon - gyakorlat
+## Manuális lépés GitLabon - gyakorlat
 
 ```yaml
 when: manual
 ```
 
-# Telepítés Helm használatával
+## Telepítés Helm használatával
 
 ```shell
 kubectl delete -f mariadb-secrets.yaml
@@ -2399,7 +2386,7 @@ kubectl port-forward svc/employees-app 8080:8080
 
 * `http://localhost:8080/actuator/info`
 
-# Monitorozás Prometheus és Graphana használatával - gyakorlat
+## Monitorozás Prometheus és Graphana használatával - gyakorlat
 
 `pom.xml`
 
@@ -2432,7 +2419,7 @@ New dashboard, Add visualization, Prometheus
 * Last 15 minutes
 * Standard options / Unit : `bytes (SI)`
 
-# Tracing Zipkin használatával - gyakorlat
+## Tracing Zipkin használatával - gyakorlat
 
 `pom.xml`
 
@@ -2473,7 +2460,7 @@ mvnw spring-boot:run
 
 `http://localhost:9411`
 
-# Naplózás EFK használatával - gyakorlat
+## Naplózás EFK használatával - gyakorlat
 
 ```shell
 xcopy /e /i javax-cip-public\efk efk
