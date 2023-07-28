@@ -808,7 +808,7 @@ docker run -p 8083:8080 -d --name employees-gradle-cnb employees-gradle:1.0.0
 ```
 
 
-# Docker repository létrehozása Nexus-ban
+## Docker repository létrehozása Nexus-ban
 
 * Create Docker hosted repository (port `8082`)
 * Adminisztrációs felületen: _Security / Realms_ tabon: _Docker Bearer Token Realm_ hozzáadása
@@ -1876,7 +1876,7 @@ stage('E2E') {
 }
 ```
 
-# Artifact archiválás Jenkinsen - gyakorlat
+## Artifact archiválás Jenkinsen - gyakorlat
 
 ```groovy
 sh 'rm -rf reports'
