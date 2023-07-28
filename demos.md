@@ -2386,7 +2386,7 @@ kubectl port-forward svc/employees-app 8080:8080
 
 * `http://localhost:8080/actuator/info`
 
-## Monitorozás Prometheus és Graphana használatával - gyakorlat
+## Monitorozás Prometheus és Grafana használatával - gyakorlat
 
 `pom.xml`
 
@@ -2409,7 +2409,7 @@ cd prometheus
 docker compose up -d
 ```
 
-Graphana: `http://localhost:3000/`, `admin`/`admin`
+Grafana: `http://localhost:3000/`, `admin`/`admin`
 
 Administration / Data sources / Add data source
 Prometheus server url: `http://prometheus:9090` (hisz Docker Compose-on belül)
