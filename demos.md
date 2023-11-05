@@ -826,7 +826,7 @@ docker push localhost:8092/employees
 ```shell
 docker tag employees-gradle localhost:8092/employees-gradle
 docker login localhost:8092
-docker push localhost:8092/employees
+docker push localhost:8092/employees-gradle
 ```
 
 ## Docker compose használata - gyakorlat
