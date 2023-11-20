@@ -1337,13 +1337,15 @@ ansible-playbook jar-playbook.yaml -i inventory.yaml
 ```
 
 
-## Docker image push-olása Docker hub-ra - gyakorlat
+## Docker image push-olása Docker Hubra - gyakorlat
 
 ```
 docker login hub.docker.com
 docker tag employees:1.0.0 training360/employees:1.0.0
 docker push training360/employees:1.0.0
 ```
+
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
 
 ## Docker telepítés és konténer futtatás AWS környezetben Ansible használatával
 
@@ -1364,6 +1366,7 @@ cp /mnt/c/training/employees/stop-service-playbook.yaml .
 ansible-playbook stop-service-playbook.yaml -i inventory.yaml
 ```
 
+`docker-compose.yaml`
 
 ```yaml
   employees-app:
@@ -1374,6 +1377,8 @@ ansible-playbook stop-service-playbook.yaml -i inventory.yaml
     ports:
       - ${SERVER_PORT:-8080}:8080
 ```
+
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett a `docker-compose.yaml` fájlban.
 
 ```shell
 cp /mnt/c/training/employees/docker-compose.yaml .
@@ -1596,6 +1601,17 @@ kubectl port-forward svc/employees-app 8080:8080
 
 ## Lokális Git repo létrehozása - gyakorlat
 
+> A Git használata előtt be kell állítani a felhasználónevünk és e-mail címünk.
+
+Hibaüzenet: `make sure you configure your 'user.name' and 'user.email' in git`
+
+Parancsok:
+
+```shell
+git config --global user.name "userName"
+git config --global user.email "userEmail"
+```
+
 ```shell
 git init
 git add .
@@ -1798,6 +1814,8 @@ agent {
 }
 ```
 
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
+
 `Dockerfile.build`
 
 ```dockerfile
@@ -1825,6 +1843,8 @@ stage('Docker') {
     }
 }
 ```
+
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
 
 * `Dockerfile.layered`: `*.jar`
 * `Jenkinsfile`: `clean`
@@ -1865,6 +1885,8 @@ volumes:
     external: true
     name: jenkins-data
 ```
+
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
 
 ```groovy
 stage('E2E') {            
@@ -1947,6 +1969,8 @@ environment:
   IMAGE_NAME: "{{ imageName | default('training360/employees:latest') }}"
 ```
 
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
+
 `docker-compose.yaml`
 
 ```yaml
@@ -1954,6 +1978,8 @@ employees-app:
   image: ${IMAGE_NAME:-training360/employees:latest}
   entrypoint: ["/opt/wait/wait-for-it.sh", "-t", "120", "mariadb:3306", "--", "java", "org.springframework.boot.loader.JarLauncher"]
 ```
+
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
 
 `Jenkinsfile`
 
@@ -2183,6 +2209,8 @@ docker-job:
     - docker tag ${IMAGE_NAME} training360/employees:latest
 ```
 
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
+
 ## E2E tesztek futtatása GitLabon - gyakorlat
 
 ```shell
@@ -2230,6 +2258,8 @@ volumes:
     external: true
     name: gitlab-runner-builds
 ```
+
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
 
 ```shell
 docker exec -it gitlab-gitlab-runner-1 cat /etc/gitlab-runner/config.toml
@@ -2288,6 +2318,8 @@ xcopy /e /i employees\deployments employees-gradle\deployments
 - image: training360/employees:latest
 ```
 
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
+
 * `src\main\resources\templates\employees.html`
 
 ```yaml
@@ -2311,6 +2343,8 @@ deploy-job:
     - sed  "s/training360\/employees:latest/$IMAGE_NAME/g" employees-deployment.yaml | kubectl apply -f -
 ```
 
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
+
 ```gradle
 springBoot {
 	buildInfo()
@@ -2329,7 +2363,7 @@ kubectl port-forward svc/employees-app 8080:8080
 when: manual
 ```
 
-## Telepítés Helm használatával
+## Telepítés Kubernetes környezetre Helmmel GitLabon - gyakorlat
 
 ```shell
 kubectl delete -f mariadb-secrets.yaml
@@ -2356,6 +2390,8 @@ xcopy /e /i deployments employees-chart\templates
 ```yaml
 - image: training360/employees:{{ .Values.image.tag }}
 ```
+
+Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
 
 * `values.yaml` fájlban:
 
