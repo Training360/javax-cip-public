@@ -879,7 +879,7 @@ docker exec -it employees-mariadb-1 mariadb employees
 select * from employees;
 ```
 
-* DBeawer
+* DBeaver
 
 ```shell
 docker compose down
