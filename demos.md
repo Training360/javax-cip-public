@@ -868,6 +868,43 @@ services:
       - 8080:8080
 ```
 
+A `wait-for-it.sh` nélkül:
+
+```yaml
+version: '3'
+
+services:
+  mariadb:
+    image: mariadb
+    expose:
+      - 3306
+    environment:
+      MARIADB_DATABASE: employees
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes' # aposztrófok nélkül boolean true-ként értelmezi
+      MARIADB_USER: employees
+      MARIADB_PASSWORD: employees
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 3
+      timeout: 20s
+
+  employees-app:
+    image: employees:1.0.0
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    expose:
+      - 8080
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:mariadb://mariadb:3306/employees'
+      SPRING_DATASOURCE_USERNAME: employees
+      SPRING_DATASOURCE_PASSWORD: employees
+    ports:
+      - 8080:8080
+```
 
 ```shell
 docker compose up -d
@@ -989,6 +1026,88 @@ services:
     entrypoint: ["/opt/wait/wait-for-it.sh", "-t", "120", "employees-app:8080", "--", "./mvnw", "test"]
 ```
 
+`wait-for-it.sh` nélkül:
+
+```yaml
+version: "3"
+services:
+  selenium-hub:
+    image: selenium/hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  chrome:
+    image: selenium/node-chrome
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - selenium-hub
+    environment:
+      SE_EVENT_BUS_HOST: selenium-hub
+      SE_EVENT_BUS_PUBLISH_PORT: 4442
+      SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+    expose:
+      - "5900"
+    privileged: true
+
+  chrome-video:
+    image: selenium/video:ffmpeg-4.3.1-20210527
+    volumes:
+      - ./videos:/videos
+    depends_on:
+      - chrome
+    environment:
+      DISPLAY_CONTAINER_NAME: chrome
+      FILE_NAME: chrome-video.mp4
+
+  mariadb:
+    image: mariadb
+    expose:
+      - 3306
+    environment:
+      MARIADB_DATABASE: employees
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+      MARIADB_USER: employees
+      MARIADB_PASSWORD: employees
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 3
+      timeout: 30s
+
+  employees-app:
+    image: employees:1.0.0
+    expose:
+      - 8080
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:mariadb://mariadb:3306/employees'
+      SPRING_DATASOURCE_USERNAME: employees
+      SPRING_DATASOURCE_PASSWORD: employees
+    healthcheck:
+      test: curl --fail http://localhost:8080 || exit 1
+      interval: 5s
+      retries: 3
+      timeout: 30s
+
+  employees-selenium:
+    build: .
+    image: employees-selenium
+    volumes:
+      - ./surefire-reports:/tests/target/surefire-reports
+    depends_on:
+      employees-app:
+        condition: service_healthy
+    environment:
+      SELENIUM_DRIVER: RemoteWebDriver
+      SELENIUM_HUB_URL: http://selenium-hub:4444
+      SELENIUM_SUT_URL: http://employees-app:8080
+```
+
 ```shell
 mkdir wait
 cd wait
@@ -1057,6 +1176,56 @@ services:
     depends_on:
       - employees-app
     entrypoint: ["/opt/wait/wait-for-it.sh", "-t", "30", "employees-app:8080", "--", "newman", "run", "employees.postman_collection.json", "-e", "test.postman_environment.json", "-r", "cli,htmlextra", "--reporter-htmlextra-export", "reports"]
+```
+
+`wait-for-it.sh` nélkül:
+
+```yaml
+version: '3'
+
+services:
+  mariadb:
+    image: mariadb
+    expose:
+      - 3306
+    environment:
+      MARIADB_DATABASE: employees
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: 'yes'
+      MARIADB_USER: employees
+      MARIADB_PASSWORD: employees
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 3
+      timeout: 30s
+
+  employees-app:
+    image: employees:1.0.0
+    depends_on:
+      - mariadb
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:mariadb://mariadb:3306/employees'
+      SPRING_DATASOURCE_USERNAME: employees
+      SPRING_DATASOURCE_PASSWORD: employees
+    depends_on:
+      mariadb:
+        condition: service_healthy    
+    expose:
+      - 8080
+    healthcheck:
+      test: curl --fail http://localhost:8080 || exit 1
+      interval: 5s
+      retries: 3
+      timeout: 30s
+
+  employees-newman:
+    build: .
+    image: employees-newman
+    volumes:
+    - ./reports:/tests/reports
+    depends_on:
+      employees-app:
+        condition: service_healthy
 ```
 
 ```shell
@@ -1348,6 +1517,8 @@ docker push training360/employees:1.0.0
 Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
 
 ## Docker telepítés és konténer futtatás AWS környezetben Ansible használatával
+
+Itt is hanyagolható a `wait-for-it.sh` használata, nem kell másolni a `wait` könyvtárat.
 
 `stop-service-playbook.yaml`
 
@@ -1853,6 +2024,8 @@ Itt a saját Docker Hub felhasználónevet kell használni a `training360` helye
 
 ## E2E tesztek futtatása Jenkinsen - gyakorlat
 
+Itt is hanyagolható a `wait-for-it.sh` használata.
+
 ```shell
 xcopy /e /i employees-postman employees\employees-postman
 ```
@@ -2212,6 +2385,8 @@ docker-job:
 Itt a saját Docker Hub felhasználónevet kell használni a `training360` helyett.
 
 ## E2E tesztek futtatása GitLabon - gyakorlat
+
+Itt is hanyagolható a `wait-for-it.sh` használata.
 
 ```shell
 git update-index --chmod=+x employees-postman\wait\wait-for-it.sh
