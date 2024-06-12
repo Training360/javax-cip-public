@@ -281,7 +281,7 @@ docker exec -it nexus cat /nexus-data/admin.password
 ## Nexus repo manager Maven proxyként - gyakorlat
 
 ```shell
-mvn dependency:purge-local-repository
+mvnw dependency:purge-local-repository
 ```
 
 `~/.m2/settings.xml` fájlban
