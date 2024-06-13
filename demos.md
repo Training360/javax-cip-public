@@ -418,8 +418,11 @@ gradlew build publish
 
 ## Artifactory repo manager - gyakorlat
 
+Sajnos az Artifactory frissebb verzióját már nehezebb elindítani. Ezért a videóban használt verzió
+a következő paranccsal indítható:
+
 ```shell
-docker run --name artifactory -d -p 8093:8081 -p 8094:8082 docker.bintray.io/jfrog/artifactory-oss:latest
+docker run --name artifactory -d -p 8093:8081 -p 8094:8082 releases-docker.jfrog.io/jfrog/artifactory-pro:7.59.9
 ```
 
 http://localhost:8094/
