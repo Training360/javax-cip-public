@@ -422,7 +422,7 @@ Sajnos az Artifactory frissebb verzióját már nehezebb elindítani. Ezért a v
 a következő paranccsal indítható:
 
 ```shell
-docker run --name artifactory -d -p 8093:8081 -p 8094:8082 releases-docker.jfrog.io/jfrog/artifactory-pro:7.59.9
+docker run --name artifactory -d -p 8093:8081 -p 8094:8082 releases-docker.jfrog.io/jfrog/artifactory-oss:7.59.9
 ```
 
 http://localhost:8094/
