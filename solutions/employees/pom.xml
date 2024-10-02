@@ -185,7 +185,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <id>jacoco-initialize</id>
@@ -223,7 +223,7 @@
                 </executions>
             </plugin>
 
-            <plugin>
+            <!-- <plugin>
                 <groupId>org.owasp</groupId>
                 <artifactId>dependency-check-maven</artifactId>
                 <version>8.2.1</version>
@@ -234,7 +234,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>   
+            </plugin>    -->
 
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>

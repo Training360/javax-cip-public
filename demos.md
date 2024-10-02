@@ -173,11 +173,14 @@ gradlew build -x test
 
 ## Maven tesztlefedettség - gyakorlat
 
+Újabb Java esetén újabb Jacoco verziót kell használni!
+Pl. a 0.8.11 támogatja hivatalosan a Java 21-et.
+
 ```xml
 <plugin>
     <groupId>org.jacoco</groupId>
     <artifactId>jacoco-maven-plugin</artifactId>
-    <version>0.8.7</version>
+    <version>0.8.12</version>
     <executions>
         <execution>
             <id>jacoco-initialize</id>
@@ -202,6 +205,9 @@ mvnw package
 
 ## Gradle teszt lefedettség
 
+Újabb Java esetén újabb Jacoco verziót kell használni!
+Pl. a 0.8.11 támogatja hivatalosan a Java 21-et.
+
 ```groovy
 plugins {
   id 'jacoco'
@@ -213,7 +219,7 @@ test {
 }
 
 jacoco {
-  toolVersion = "0.8.8"
+  toolVersion = "0.8.12"
 }
 
 jacocoTestReport {
