@@ -806,6 +806,25 @@ mvnw spring-boot:build-image
 docker run -p 8082:8080 -d --name employees-cnb employees:1.0.0
 ```
 
+> Amennyiben a hibaüzenet a következő: `Execution default-cli of goal org.springframework.boot:spring-boot-maven-plugin:3.0.6:build-image failed: Builder lifecycle 'creator' failed with status code 51`,
+> akkor JDK verziókülönbség van, megoldható azzal, hogy a `spring-boot-maven-plugin` plugint kell paraméterezni:
+
+```xml
+<plugins>
+    <plugin>
+       <groupId>org.springframework.boot</groupId>
+       <artifactId>spring-boot-maven-plugin</artifactId>
+       <configuration>
+          <image>
+             <env>
+                <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
+             </env>
+          </image>
+       </configuration>
+    </plugin>
+</plugins>
+```
+
 ## Csomagolás Docker Image-be Mavennel Cloud Native Buildpacks használatával - gyakorlat
 
 ```shell
