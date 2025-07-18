@@ -1229,8 +1229,6 @@ services:
 
   employees-app:
     image: employees:1.0.0
-    depends_on:
-      - mariadb
     environment:
       SPRING_DATASOURCE_URL: 'jdbc:mariadb://mariadb:3306/employees'
       SPRING_DATASOURCE_USERNAME: employees
